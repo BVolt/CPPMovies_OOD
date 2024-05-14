@@ -1,0 +1,18 @@
+@startuml
+agent Movie
+agent SearchEngine
+agent Customer
+agent CustomerAccount
+agent StreamingService
+agent AuthenticationForm
+
+Movie -- SearchEngine
+Movie -- StreamingService
+Customer -- SearchEngine
+Customer -- CustomerAccount
+CustomerAccount -- AuthenticationForm
+Customer -- AuthenticationForm
+StreamingService -- Customer
+StreamingService -- SearchEngine
+@enduml
+
