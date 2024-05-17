@@ -6,13 +6,13 @@ package "StreamingService" {
     class Movie {
         - title: string
         - genre: string
-        - lengthInSeconds: int
+        - duration: int
         - rating: float
         - releaseDate: Date
         - videoFilePath: string
         + getTitle(): string
         + getGenre(): string
-        + getLengthInSeconds(): int
+        + getDuration(): int
         + getRating(): float
         + getReleaseDate(): Date
         + getVideoFilePath(): string
