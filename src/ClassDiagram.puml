@@ -4,14 +4,14 @@ package "StreamingService" {
     top to bottom direction
 
     class Movie {
-        - title: String
-        - genre: String
+        - title: string
+        - genre: string
         - lengthInSeconds: int
         - rating: float
         - releaseDate: Date
         - videoFilePath: string
-        + getTitle(): String
-        + getGenre(): String
+        + getTitle(): string
+        + getGenre(): string
         + getLengthInSeconds(): int
         + getRating(): float
         + getReleaseDate(): Date
@@ -19,18 +19,18 @@ package "StreamingService" {
     }
 
     class MovieBuilder {
-        - title: String
-        - genre: String
-        - lengthInSeconds: int
+        - title: string
+        - genre: string
+        - duration: int
         - rating: float
         - releaseDate: Date
         - videoFilePath: string
-        + setTitle(String title): MovieBuilder
-        + setGenre(String genre): MovieBuilder
-        + setLengthInSeconds(int lengthInSeconds): MovieBuilder
-        + setRating(float rating): MovieBuilder
-        + setReleaseDate(Date releaseDate): MovieBuilder
-        + setVideoFilePath(String videoFilePath): MovieBuilder
+        + setTitle(title: string): MovieBuilder
+        + setGenre(genre: string): MovieBuilder
+        + setLengthInSeconds(duration: int): MovieBuilder
+        + setRating(rating: float): MovieBuilder
+        + setReleaseDate(releaseDate: Date): MovieBuilder
+        + setVideoFilePath(videoFilePath: string): MovieBuilder
         + build(): Movie
     }
 
@@ -39,87 +39,79 @@ package "StreamingService" {
         - email: String
         - username: String
         - password: String
-        - subscription: String
+        - videoPlayer: VideoPlayer
         + login(): void
         + logout(): void
-        + searchMovies(): List<Movie>
+        + searchMovies(title: string): List<Movie>
         + createAccount(): void
         + deleteAccount(): void
-        + updateSubscription(String newType): void
-        + getName(): String
-        + getEmail(): String
-        + getUsername(): String
-        + getPassword(): String
-        + getSubscription(): String
     }
 
     class CustomerBuilder {
-        - name: String
-        - email: String
-        - username: String
-        - password: String
-        - subscription: String
-        + setName(String name): CustomerBuilder
-        + setEmail(String email): CustomerBuilder
-        + setUsername(String username): CustomerBuilder
-        + setPassword(String password): CustomerBuilder
-        + setSubscription(String subscription): CustomerBuilder
+        - name: string
+        - email: string
+        - username: string
+        - password: string
+        + setName(name: string): CustomerBuilder
+        + setEmail(email: string): CustomerBuilder
+        + setUsername(username: string): CustomerBuilder
+        + setPassword(password: string): CustomerBuilder
         + build(): Customer
     }
 
     interface StreamingService {
-        + streamMovie(Movie movie): void
+        + streamMovie(movie: Movie): void
         + fetchAllMovies(): List<Movie>
-        + fetchMoviesByTitle(title: String): List<Movie>
-        + verifyCredentials(Customer customer): void
+        + fetchMoviesByTitle(title: string): List<Movie>
+        + verifyCredentials(customer: Customer): void
     }
 
     class MovieService implements StreamingService {
-        - name: String
         - movies: List<Movie>
         - customers: List<Customer>
-        + streamMovie(Movie movie): void
+        + streamMovie(movie: Movie): void
         + fetchAllMovies(): List<Movie>
-        + fetchMoviesByTitle(title: String): List<Movie>
-        + verifyCredentials(Customer customer): void
+        + fetchMoviesByTitle(title: string): List<Movie>
+        + verifyCredentials(customer: Customer): void
+        + newCustomer(customer: Customer): void
     }
 
     class ProxyService implements StreamingService {
         - movieService: MovieService
         - moviesCache: List<Movie>
         - customersCache: List<Customer>
-        + streamMovie(Movie movie): void
+        + streamMovie(movie: Movie): void
         + fetchAllMovies(): List<Movie>
-        + fetchMoviesByTitle(title: String): List<Movie>
-        + verifyCredentials(Customer customer): void
+        + fetchMoviesByTitle(title: string): List<Movie>
+        + verifyCredentials(customer: Customer): void
     }
 
     class VideoPlayer {
         - currentMovie: Movie
-        + loadMovie(Movie movie): void
-        + displaySubtitles(): void
+        + loadMovie(movie: Movie): void
+        + setQuality(quality: int): void
+        + displaySubtitles(language: string): void
         + play(): void
         + fastForward(): void
         + rewind(): void
         + pause(): void
         + stop(): void
-        + next(): void
-        + previous(): void
     }
 
     MovieBuilder ..> Movie : builds
     CustomerBuilder ..> Customer : builds
-    Movie "1" -- "1" MovieService : uses
-    Customer "1" -- "1" ProxyService : interacts
-    MovieService "1" *-- "many" Customer : has
-    ProxyService "1" *-- "many" Movie : has cache
-    ProxyService "1" *-- "many" Customer : has cache
-    ProxyService "1" *-- "1" MovieService : uses
-    Customer "1" *-- "1" VideoPlayer : watches
-    VideoPlayer "1" -- "1" Movie : loads
-    VideoPlayer "1" -- "1" ProxyService : uses
 
+    MovieService "1" *-- "0...*" Movie
+    MovieService "1" *-- "0...*" Customer
+
+    ProxyService "1" o-- "0...*" Movie
+    ProxyService "1" o-- "0...*" Customer
+    ProxyService "0...*" o-- "1" MovieService
+
+    VideoPlayer "1" o-- "1" Movie : loads
+    ProxyService "1" o-- "0...*" VideoPlayer
+
+    Customer "1" o-- "1" VideoPlayer : watches
 }
-
 @enduml
 
