@@ -1,5 +1,78 @@
 @startuml
 
-class LotsOfStuff
+class Movie {
+    - title: String
+    - genre: String
+    - lengthInSeconds: int
+    - rating: float
+    - releaseDate: Date
+}
+
+class Customer {
+    - name: String
+    - email: String
+    - username: String
+    - password: String
+    - subscription: String
+    + login(): void
+    + logout(): void
+    + searchMovies(): List<Movie>
+    + createAccount(): void
+    + deleteAccount(): void
+    + updateSubscription(String newType): void
+}
+
+class AuthenticationForm {
+    - loginForm: String
+    + submitLogin(): void
+    + submitRegister(): void
+}
+
+class SearchEngine {
+    - searchQuery: String
+    + searchMovies(String query): List<Movie>
+}
+
+class StreamingService {
+    - name: String
+    - customers: List<Customer>
+    + streamMovie(Movie movie): void
+    + fetchAllMovies(): List<Movie>
+    + verifyCredentials(Customer customer): void
+}
+
+class MovieFactory {
+    + createMovie(String title, String genre, int duration, double rating): Movie
+}
+
+class CustomerFactory {
+    + createCustomer(String name, String email, String username, String password, String subscriptionType): Customer
+}
+
+class VideoPlayer {
+    - currentMovie: Movie
+    + loadMovie(Movie movie): void
+    + displaySubtitles(): void
+    + play(): void
+    + fastForward(): void
+    + rewind(): void
+    + pause(): void
+    + stop(): void
+    + next(): void
+    + previous(): void
+}
+
+MovieFactory ..> Movie : creates
+CustomerFactory ..> Customer : creates
+Movie "1" -- "1" SearchEngine : searches
+Movie "1" -- "1" StreamingService : uses
+Customer "1" -- "1" SearchEngine : uses
+Customer "1" -- "1" AuthenticationForm : uses
+StreamingService "1" *-- "many" Customer : has
+StreamingService "1" -- "1" SearchEngine : uses
+StreamingService *-- CustomerFactory
+StreamingService *-- MovieFactory
+Customer "1" *-- "many" Movie : watches
+VideoPlayer "1" -- "1" Movie : loads
 
 @enduml
