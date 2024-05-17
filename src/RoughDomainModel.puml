@@ -1,18 +1,18 @@
 @startuml
 agent Movie
-agent SearchEngine
 agent Customer
-agent CustomerAccount
-agent StreamingService
-agent AuthenticationForm
+agent MovieService
+agent ProxyService
+agent VideoPlayer
 
-Movie -- SearchEngine
-Movie -- StreamingService
-Customer -- SearchEngine
-Customer -- CustomerAccount
-CustomerAccount -- AuthenticationForm
-Customer -- AuthenticationForm
-StreamingService -- Customer
-StreamingService -- SearchEngine
+Movie -- MovieService
+Movie --ProxyService
+MovieService -- Customer
+Customer -- VideoPlayer
+VideoPlayer -- Movie
+ProxyService -- Customer
+ProxyService -- MovieService
+ProxyService -- VideoPlayer
 @enduml
+
 

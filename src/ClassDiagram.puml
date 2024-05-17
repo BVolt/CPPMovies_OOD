@@ -1,78 +1,125 @@
 @startuml
 
-class Movie {
-    - title: String
-    - genre: String
-    - lengthInSeconds: int
-    - rating: float
-    - releaseDate: Date
-}
+package "StreamingService" {
+    top to bottom direction
 
-class Customer {
-    - name: String
-    - email: String
-    - username: String
-    - password: String
-    - subscription: String
-    + login(): void
-    + logout(): void
-    + searchMovies(): List<Movie>
-    + createAccount(): void
-    + deleteAccount(): void
-    + updateSubscription(String newType): void
-}
+    class Movie {
+        - title: String
+        - genre: String
+        - lengthInSeconds: int
+        - rating: float
+        - releaseDate: Date
+        - videoFilePath: string
+        + getTitle(): String
+        + getGenre(): String
+        + getLengthInSeconds(): int
+        + getRating(): float
+        + getReleaseDate(): Date
+        + getVideoFilePath(): string
+    }
 
-class AuthenticationForm {
-    - loginForm: String
-    + submitLogin(): void
-    + submitRegister(): void
-}
+    class MovieBuilder {
+        - title: String
+        - genre: String
+        - lengthInSeconds: int
+        - rating: float
+        - releaseDate: Date
+        - videoFilePath: string
+        + setTitle(String title): MovieBuilder
+        + setGenre(String genre): MovieBuilder
+        + setLengthInSeconds(int lengthInSeconds): MovieBuilder
+        + setRating(float rating): MovieBuilder
+        + setReleaseDate(Date releaseDate): MovieBuilder
+        + setVideoFilePath(String videoFilePath): MovieBuilder
+        + build(): Movie
+    }
 
-class SearchEngine {
-    - searchQuery: String
-    + searchMovies(String query): List<Movie>
-}
+    class Customer {
+        - name: String
+        - email: String
+        - username: String
+        - password: String
+        - subscription: String
+        + login(): void
+        + logout(): void
+        + searchMovies(): List<Movie>
+        + createAccount(): void
+        + deleteAccount(): void
+        + updateSubscription(String newType): void
+        + getName(): String
+        + getEmail(): String
+        + getUsername(): String
+        + getPassword(): String
+        + getSubscription(): String
+    }
 
-class StreamingService {
-    - name: String
-    - customers: List<Customer>
-    + streamMovie(Movie movie): void
-    + fetchAllMovies(): List<Movie>
-    + verifyCredentials(Customer customer): void
-}
+    class CustomerBuilder {
+        - name: String
+        - email: String
+        - username: String
+        - password: String
+        - subscription: String
+        + setName(String name): CustomerBuilder
+        + setEmail(String email): CustomerBuilder
+        + setUsername(String username): CustomerBuilder
+        + setPassword(String password): CustomerBuilder
+        + setSubscription(String subscription): CustomerBuilder
+        + build(): Customer
+    }
 
-class MovieFactory {
-    + createMovie(String title, String genre, int duration, double rating): Movie
-}
+    interface StreamingService {
+        + streamMovie(Movie movie): void
+        + fetchAllMovies(): List<Movie>
+        + fetchMoviesByTitle(title: String): List<Movie>
+        + verifyCredentials(Customer customer): void
+    }
 
-class CustomerFactory {
-    + createCustomer(String name, String email, String username, String password, String subscriptionType): Customer
-}
+    class MovieService implements StreamingService {
+        - name: String
+        - movies: List<Movie>
+        - customers: List<Customer>
+        + streamMovie(Movie movie): void
+        + fetchAllMovies(): List<Movie>
+        + fetchMoviesByTitle(title: String): List<Movie>
+        + verifyCredentials(Customer customer): void
+    }
 
-class VideoPlayer {
-    - currentMovie: Movie
-    + loadMovie(Movie movie): void
-    + displaySubtitles(): void
-    + play(): void
-    + fastForward(): void
-    + rewind(): void
-    + pause(): void
-    + stop(): void
-    + next(): void
-    + previous(): void
-}
+    class ProxyService implements StreamingService {
+        - movieService: MovieService
+        - moviesCache: List<Movie>
+        - customersCache: List<Customer>
+        + streamMovie(Movie movie): void
+        + fetchAllMovies(): List<Movie>
+        + fetchMoviesByTitle(title: String): List<Movie>
+        + verifyCredentials(Customer customer): void
+    }
 
-MovieFactory ..> Movie : creates
-CustomerFactory ..> Customer : creates
-Movie "1" -- "1" SearchEngine : searches
-Movie "1" -- "1" StreamingService : uses
-Customer "1" -- "1" SearchEngine : uses
-Customer "1" -- "1" AuthenticationForm : uses
-StreamingService "1" *-- "many" Customer : has
-StreamingService "1" -- "1" SearchEngine : uses
-StreamingService *-- CustomerFactory
-StreamingService *-- MovieFactory
-Customer "1" *-- "many" Movie : watches
-VideoPlayer "1" -- "1" Movie : loads
+    class VideoPlayer {
+        - currentMovie: Movie
+        + loadMovie(Movie movie): void
+        + displaySubtitles(): void
+        + play(): void
+        + fastForward(): void
+        + rewind(): void
+        + pause(): void
+        + stop(): void
+        + next(): void
+        + previous(): void
+    }
+
+    MovieBuilder ..> Movie : builds
+    CustomerBuilder ..> Customer : builds
+    Movie "1" -- "1" MovieService : uses
+    Customer "1" -- "1" ProxyService : interacts
+    MovieService "1" *-- "many" Customer : has
+    ProxyService "1" *-- "many" Movie : has cache
+    ProxyService "1" *-- "many" Customer : has cache
+    ProxyService "1" *-- "1" MovieService : uses
+    Customer "1" *-- "1" VideoPlayer : watches
+    VideoPlayer "1" -- "1" Movie : loads
+    VideoPlayer "1" -- "1" ProxyService : uses
+
+}
 
 @enduml
+
